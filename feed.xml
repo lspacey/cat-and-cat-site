@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">
     <title>Cat &amp; Cat</title>
-    <link href="https://github.com/lspacey/cat-and-cat-site/feed.xml" rel="self" />
-    <link href="https://github.com/lspacey/cat-and-cat-site" />
-    <updated>2026-05-13T22:55:54+08:00</updated>
+    <link href="https://cats.wowapartments.club/feed.xml" rel="self" />
+    <link href="https://cats.wowapartments.club" />
+    <updated>2026-05-13T23:33:35+08:00</updated>
     <author>
         <name>denm</name>
     </author>
-    <id>https://github.com/lspacey/cat-and-cat-site</id>
+    <id>https://cats.wowapartments.club</id>
 
     <entry>
         <title>Our photos</title>
         <author>
             <name>denm</name>
         </author>
-        <link href="https://github.com/lspacey/cat-and-cat-site/our-photos.html"/>
-        <id>https://github.com/lspacey/cat-and-cat-site/our-photos.html</id>
+        <link href="https://cats.wowapartments.club/our-photos.html"/>
+        <id>https://cats.wowapartments.club/our-photos.html</id>
 
         <updated>2026-05-13T22:55:48+08:00</updated>
             <summary type="html">
@@ -26,20 +26,20 @@
         <content type="html">
             <![CDATA[
                 <div class="gallery-wrapper"><div class="gallery" data-is-empty="false" data-translation="Add images" data-columns="3">
-<figure class="gallery__item"><a href="https://github.com/lspacey/cat-and-cat-site/media/posts/3/gallery/P_20220119_180112-kopiya.jpg" data-size="4576x3432"><img loading="lazy" src="https://github.com/lspacey/cat-and-cat-site/media/posts/3/gallery/P_20220119_180112-kopiya-thumbnail.jpg" alt="" width="768" height="576"></a>
+<figure class="gallery__item"><a href="https://cats.wowapartments.club/media/posts/3/gallery/P_20220119_180112-kopiya.jpg" data-size="4576x3432"><img loading="lazy" src="https://cats.wowapartments.club/media/posts/3/gallery/P_20220119_180112-kopiya-thumbnail.jpg" alt="" width="768" height="576"></a>
 <figcaption>Фото 1</figcaption>
 </figure>
-<figure class="gallery__item"><a href="https://github.com/lspacey/cat-and-cat-site/media/posts/3/gallery/P_20220119_180112.jpg" data-size="4576x3432"><img loading="lazy" src="https://github.com/lspacey/cat-and-cat-site/media/posts/3/gallery/P_20220119_180112-thumbnail.jpg" alt="" width="768" height="576"></a>
+<figure class="gallery__item"><a href="https://cats.wowapartments.club/media/posts/3/gallery/P_20220119_180112.jpg" data-size="4576x3432"><img loading="lazy" src="https://cats.wowapartments.club/media/posts/3/gallery/P_20220119_180112-thumbnail.jpg" alt="" width="768" height="576"></a>
 <figcaption>Фото 2</figcaption>
 </figure>
-<figure class="gallery__item"><a href="https://github.com/lspacey/cat-and-cat-site/media/posts/3/gallery/P_20220119_180113-kopiya.jpg" data-size="4576x3432"><img loading="lazy" src="https://github.com/lspacey/cat-and-cat-site/media/posts/3/gallery/P_20220119_180113-kopiya-thumbnail.jpg" alt="" width="768" height="576"></a></figure>
-<figure class="gallery__item"><a href="https://github.com/lspacey/cat-and-cat-site/media/posts/3/gallery/P_20220119_180113.jpg" data-size="4576x3432"><img loading="lazy" src="https://github.com/lspacey/cat-and-cat-site/media/posts/3/gallery/P_20220119_180113-thumbnail.jpg" alt="" width="768" height="576"></a></figure>
-<figure class="gallery__item"><a href="https://github.com/lspacey/cat-and-cat-site/media/posts/3/gallery/P_20220119_180115-kopiya.jpg" data-size="4576x3432"><img loading="lazy" src="https://github.com/lspacey/cat-and-cat-site/media/posts/3/gallery/P_20220119_180115-kopiya-thumbnail.jpg" alt="" width="768" height="576"></a></figure>
-<figure class="gallery__item"><a href="https://github.com/lspacey/cat-and-cat-site/media/posts/3/gallery/P_20220119_180115.jpg" data-size="4576x3432"><img loading="lazy" src="https://github.com/lspacey/cat-and-cat-site/media/posts/3/gallery/P_20220119_180115-thumbnail.jpg" alt="" width="768" height="576"></a></figure>
-<figure class="gallery__item"><a href="https://github.com/lspacey/cat-and-cat-site/media/posts/3/gallery/P_20220119_180125-kopiya.jpg" data-size="4576x3432"><img loading="lazy" src="https://github.com/lspacey/cat-and-cat-site/media/posts/3/gallery/P_20220119_180125-kopiya-thumbnail.jpg" alt="" width="768" height="576"></a></figure>
-<figure class="gallery__item"><a href="https://github.com/lspacey/cat-and-cat-site/media/posts/3/gallery/P_20220119_180125.jpg" data-size="4576x3432"><img loading="lazy" src="https://github.com/lspacey/cat-and-cat-site/media/posts/3/gallery/P_20220119_180125-thumbnail.jpg" alt="" width="768" height="576"></a></figure>
-<figure class="gallery__item"><a href="https://github.com/lspacey/cat-and-cat-site/media/posts/3/gallery/P_20220119_180127-kopiya.jpg" data-size="4576x3432"><img loading="lazy" src="https://github.com/lspacey/cat-and-cat-site/media/posts/3/gallery/P_20220119_180127-kopiya-thumbnail.jpg" alt="" width="768" height="576"></a></figure>
-<figure class="gallery__item"><a href="https://github.com/lspacey/cat-and-cat-site/media/posts/3/gallery/P_20220119_180127.jpg" data-size="4576x3432"><img loading="lazy" src="https://github.com/lspacey/cat-and-cat-site/media/posts/3/gallery/P_20220119_180127-thumbnail.jpg" alt="" width="768" height="576"></a></figure>
+<figure class="gallery__item"><a href="https://cats.wowapartments.club/media/posts/3/gallery/P_20220119_180113-kopiya.jpg" data-size="4576x3432"><img loading="lazy" src="https://cats.wowapartments.club/media/posts/3/gallery/P_20220119_180113-kopiya-thumbnail.jpg" alt="" width="768" height="576"></a></figure>
+<figure class="gallery__item"><a href="https://cats.wowapartments.club/media/posts/3/gallery/P_20220119_180113.jpg" data-size="4576x3432"><img loading="lazy" src="https://cats.wowapartments.club/media/posts/3/gallery/P_20220119_180113-thumbnail.jpg" alt="" width="768" height="576"></a></figure>
+<figure class="gallery__item"><a href="https://cats.wowapartments.club/media/posts/3/gallery/P_20220119_180115-kopiya.jpg" data-size="4576x3432"><img loading="lazy" src="https://cats.wowapartments.club/media/posts/3/gallery/P_20220119_180115-kopiya-thumbnail.jpg" alt="" width="768" height="576"></a></figure>
+<figure class="gallery__item"><a href="https://cats.wowapartments.club/media/posts/3/gallery/P_20220119_180115.jpg" data-size="4576x3432"><img loading="lazy" src="https://cats.wowapartments.club/media/posts/3/gallery/P_20220119_180115-thumbnail.jpg" alt="" width="768" height="576"></a></figure>
+<figure class="gallery__item"><a href="https://cats.wowapartments.club/media/posts/3/gallery/P_20220119_180125-kopiya.jpg" data-size="4576x3432"><img loading="lazy" src="https://cats.wowapartments.club/media/posts/3/gallery/P_20220119_180125-kopiya-thumbnail.jpg" alt="" width="768" height="576"></a></figure>
+<figure class="gallery__item"><a href="https://cats.wowapartments.club/media/posts/3/gallery/P_20220119_180125.jpg" data-size="4576x3432"><img loading="lazy" src="https://cats.wowapartments.club/media/posts/3/gallery/P_20220119_180125-thumbnail.jpg" alt="" width="768" height="576"></a></figure>
+<figure class="gallery__item"><a href="https://cats.wowapartments.club/media/posts/3/gallery/P_20220119_180127-kopiya.jpg" data-size="4576x3432"><img loading="lazy" src="https://cats.wowapartments.club/media/posts/3/gallery/P_20220119_180127-kopiya-thumbnail.jpg" alt="" width="768" height="576"></a></figure>
+<figure class="gallery__item"><a href="https://cats.wowapartments.club/media/posts/3/gallery/P_20220119_180127.jpg" data-size="4576x3432"><img loading="lazy" src="https://cats.wowapartments.club/media/posts/3/gallery/P_20220119_180127-thumbnail.jpg" alt="" width="768" height="576"></a></figure>
 </div></div>
             ]]>
         </content>
@@ -49,8 +49,8 @@
         <author>
             <name>denm</name>
         </author>
-        <link href="https://github.com/lspacey/cat-and-cat-site/cat-and-cat.html"/>
-        <id>https://github.com/lspacey/cat-and-cat-site/cat-and-cat.html</id>
+        <link href="https://cats.wowapartments.club/cat-and-cat.html"/>
+        <id>https://cats.wowapartments.club/cat-and-cat.html</id>
 
         <updated>2026-05-11T22:32:37+08:00</updated>
             <summary type="html">
