@@ -30,7 +30,6 @@
       cursor: pointer;
       user-select: none;
       -webkit-user-select: none;
-      position: relative;
       overflow: hidden;
     }
 
@@ -46,19 +45,20 @@
       opacity: 0;
     }
 
-    /* Hint: positioned relative to .scene */
     .hint {
       position: absolute;
-      /* Golden ratio: 38.2% from left, ~23% from top — above the image */
-      left: 38.2%;
-      top: -72px;
+      left: 50%;
+      top: -76px;
+      transform: translateX(-50%);
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 4px;
       pointer-events: none;
-      animation: hint-appear 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-      transform-origin: center bottom;
+    }
+
+    .hint.appearing {
+      animation: hint-appear 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
     }
 
     .hint.hiding {
@@ -66,13 +66,13 @@
     }
 
     @keyframes hint-appear {
-      0%   { opacity: 0; transform: translateY(-12px) scale(0.85); }
-      100% { opacity: 1; transform: translateY(0)     scale(1); }
+      0%   { opacity: 0; transform: translateX(-50%) translateY(-14px) scale(0.82); }
+      100% { opacity: 1; transform: translateX(-50%) translateY(0)      scale(1); }
     }
 
     @keyframes hint-disappear {
-      0%   { opacity: 1; transform: translateY(0) scale(1); }
-      100% { opacity: 0; transform: translateY(-16px) scale(0.8); }
+      0%   { opacity: 1; transform: translateX(-50%) translateY(0)      scale(1); }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-18px)  scale(0.78); }
     }
 
     .hint-label {
@@ -83,22 +83,15 @@
       letter-spacing: 0.03em;
       white-space: nowrap;
     }
-
-    .hint-arrow {
-      /* Curved arrow pointing downward-right, drawn as inline SVG */
-    }
   </style>
 </head>
 <body>
   <div class="scene" id="scene">
 
-    <!-- Hint overlay -->
-    <div class="hint" id="hint">
+    <div class="hint appearing" id="hint">
       <span class="hint-label">click me</span>
-      <svg class="hint-arrow" width="38" height="44" viewBox="0 0 38 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- curved path going down and slightly right -->
+      <svg width="38" height="44" viewBox="0 0 38 44" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M10 2 C6 14, 18 28, 22 40" stroke="#888" stroke-width="2" stroke-linecap="round" fill="none"/>
-        <!-- arrowhead -->
         <path d="M22 40 L14 36 M22 40 L28 34" stroke="#888" stroke-width="2" stroke-linecap="round" fill="none"/>
       </svg>
     </div>
@@ -125,14 +118,40 @@
     }
 
     let currentIndex = null;
+    let hintTimer = null;
+
+    const hint = document.getElementById('hint');
+
+    function showHint() {
+      hint.style.display = 'flex';
+      // re-trigger animation
+      hint.classList.remove('appearing', 'hiding');
+      void hint.offsetWidth; // reflow
+      hint.classList.add('appearing');
+    }
+
+    function hideHint(callback) {
+      hint.classList.remove('appearing');
+      hint.classList.add('hiding');
+      hint.addEventListener('animationend', () => {
+        hint.style.display = 'none';
+        if (callback) callback();
+      }, { once: true });
+    }
 
     function loadImage(idx) {
       const img = document.getElementById('photo');
       img.classList.add('fading');
       setTimeout(() => {
         img.src = `image/${pad(idx)}.jpg`;
-        img.onload = () => img.classList.remove('fading');
-        img.onerror = () => img.classList.remove('fading');
+        const done = () => {
+          img.classList.remove('fading');
+          // Show hint again after image loaded, small delay for smoothness
+          clearTimeout(hintTimer);
+          hintTimer = setTimeout(showHint, 400);
+        };
+        img.onload = done;
+        img.onerror = done;
       }, 250);
       currentIndex = idx;
     }
@@ -141,32 +160,11 @@
     currentIndex = randomIndex(-1);
     document.getElementById('photo').src = `image/${pad(currentIndex)}.jpg`;
 
-    // Hint logic
-    const hint = document.getElementById('hint');
-    let hintDismissed = false;
-
-    try {
-      if (localStorage.getItem('2cats_hint_dismissed') === '1') {
-        hint.style.display = 'none';
-        hintDismissed = true;
-      }
-    } catch(e) {
-      // localStorage blocked — fallback: show hint this session only
-    }
-
-    function dismissHint() {
-      if (hintDismissed) return;
-      hintDismissed = true;
-      hint.classList.add('hiding');
-      hint.addEventListener('animationend', () => {
-        hint.style.display = 'none';
-      }, { once: true });
-      try { localStorage.setItem('2cats_hint_dismissed', '1'); } catch(e) {}
-    }
-
     document.getElementById('wrapper').addEventListener('click', () => {
-      dismissHint();
-      loadImage(randomIndex(currentIndex));
+      clearTimeout(hintTimer);
+      hideHint(() => {
+        loadImage(randomIndex(currentIndex));
+      });
     });
   </script>
 </body>
