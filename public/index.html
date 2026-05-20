@@ -24,6 +24,77 @@
       flex-shrink: 0;
     }
 
+    /* ── Back button (cat paw) ── */
+    .back-btn {
+      position: absolute;
+      top: -58px;
+      left: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 5px 12px 5px 5px;
+      border-radius: 99px;
+      color: #8b6f6f;
+      font-family: 'Georgia', serif;
+      font-size: 13px;
+      font-style: italic;
+      letter-spacing: 0.05em;
+      transition: color 0.22s ease, background 0.22s ease, opacity 0.25s ease, transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.22s ease;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(-10px);
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .back-btn.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(0);
+    }
+
+    .back-btn:hover {
+      color: #5a3e3e;
+      background: rgba(180,120,120,0.10);
+      box-shadow: 0 2px 10px rgba(180,120,120,0.13);
+    }
+
+    .back-btn:active {
+      background: rgba(180,120,120,0.20);
+      transform: translateX(0) scale(0.95);
+    }
+
+    /* The paw SVG container */
+    .back-btn .paw-wrap {
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      background: rgba(220,180,180,0.18);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.22s ease, transform 0.28s cubic-bezier(0.34,1.56,0.64,1);
+    }
+
+    .back-btn:hover .paw-wrap {
+      background: rgba(220,160,160,0.28);
+      transform: rotate(-18deg) scale(1.12);
+    }
+
+    .back-btn:active .paw-wrap {
+      transform: rotate(-25deg) scale(1.05);
+    }
+
+    .back-btn svg {
+      display: block;
+    }
+
+    /* ── Image wrapper ── */
     .image-wrapper {
       width: 100%;
       height: 100%;
@@ -31,20 +102,57 @@
       user-select: none;
       -webkit-user-select: none;
       overflow: hidden;
+      position: relative;
     }
 
+    /* Two layers for cross-fade */
     .image-wrapper img {
+      position: absolute;
+      inset: 0;
       width: 100%;
       height: 100%;
       display: block;
       object-fit: cover;
-      transition: opacity 0.25s ease;
+      transition: opacity 0.35s ease;
+      draggable: false;
     }
 
-    .image-wrapper img.fading {
+    .image-wrapper img.layer-a { z-index: 1; }
+    .image-wrapper img.layer-b { z-index: 2; }
+
+    .image-wrapper img.hidden {
       opacity: 0;
+      pointer-events: none;
     }
 
+    /* Slide-out / slide-in CSS transitions */
+    .image-wrapper img.slide-out-left {
+      transform: translateX(-60px);
+      opacity: 0;
+      transition: opacity 0.32s ease, transform 0.32s cubic-bezier(0.4,0,1,1);
+    }
+    .image-wrapper img.slide-out-right {
+      transform: translateX(60px);
+      opacity: 0;
+      transition: opacity 0.32s ease, transform 0.32s cubic-bezier(0.4,0,1,1);
+    }
+    .image-wrapper img.slide-in-left {
+      transform: translateX(60px);
+      opacity: 0;
+      transition: none;
+    }
+    .image-wrapper img.slide-in-right {
+      transform: translateX(-60px);
+      opacity: 0;
+      transition: none;
+    }
+    .image-wrapper img.slide-settled {
+      transform: translateX(0);
+      opacity: 1;
+      transition: opacity 0.32s ease, transform 0.32s cubic-bezier(0,0,0.2,1);
+    }
+
+    /* ── Hint ── */
     .hint {
       position: absolute;
       left: 50%;
@@ -83,13 +191,93 @@
       letter-spacing: 0.03em;
       white-space: nowrap;
     }
+
+    /* ── Progress dots ── */
+    .progress {
+      position: absolute;
+      bottom: -32px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      pointer-events: none;
+    }
+
+    .progress-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #ccc;
+      transition: background 0.3s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+      flex-shrink: 0;
+    }
+
+    .progress-dot.active {
+      background: #666;
+      transform: scale(1.5);
+    }
+
+    /* ── Slideshow countdown ring ── */
+    .countdown-ring {
+      position: absolute;
+      bottom: -28px;
+      right: 0;
+      width: 20px;
+      height: 20px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    .countdown-ring.visible { opacity: 0.45; }
+
+    .countdown-ring circle {
+      fill: none;
+      stroke: #888;
+      stroke-width: 2;
+      stroke-linecap: round;
+      transform-origin: 10px 10px;
+      transform: rotate(-90deg);
+    }
+
+    @keyframes drain {
+      from { stroke-dashoffset: 0; }
+      to   { stroke-dashoffset: 50.27; }
+    }
+
+    .countdown-ring.running circle {
+      animation: drain linear 10s forwards;
+    }
   </style>
 </head>
 <body>
   <div class="scene" id="scene">
 
+    <!-- Back button (cat paw) -->
+    <button class="back-btn" id="backBtn" aria-label="Предыдущее фото">
+      <span class="paw-wrap">
+        <!-- Cat paw SVG: central pad + 4 toe beans + tiny claw hints -->
+        <svg width="22" height="22" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Central palm pad -->
+          <ellipse cx="20" cy="25" rx="9" ry="8" fill="currentColor" opacity="0.85"/>
+          <!-- Toe beans -->
+          <ellipse cx="9"  cy="15" rx="4.2" ry="4.8" fill="currentColor" opacity="0.80"/>
+          <ellipse cx="18" cy="10" rx="4.2" ry="4.8" fill="currentColor" opacity="0.80"/>
+          <ellipse cx="27" cy="10" rx="4.2" ry="4.8" fill="currentColor" opacity="0.80"/>
+          <ellipse cx="33" cy="16" rx="4.2" ry="4.8" fill="currentColor" opacity="0.78"/>
+          <!-- Tiny claws -->
+          <path d="M8 10.5 Q7 8 9 7"   stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.55"/>
+          <path d="M17 5.5  Q17 3 19 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.55"/>
+          <path d="M27 5.5  Q28 3 30 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.55"/>
+          <path d="M34.5 11 Q37 10 37 8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.55"/>
+        </svg>
+      </span>
+      back
+    </button>
+
+    <!-- Hint (shown only on very first view) -->
     <div class="hint appearing" id="hint">
-      <span class="hint-label">click us</span>
+      <span class="hint-label">click or swipe</span>
       <svg width="38" height="44" viewBox="0 0 38 44" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M10 2 C6 14, 18 28, 22 40" stroke="#888" stroke-width="2" stroke-linecap="round" fill="none"/>
         <path d="M22 40 L14 36 M22 40 L28 34" stroke="#888" stroke-width="2" stroke-linecap="round" fill="none"/>
@@ -97,75 +285,365 @@
     </div>
 
     <div class="image-wrapper" id="wrapper">
-      <img id="photo" src="" alt="Random cat photo" draggable="false">
+      <img class="layer-a" id="imgA" src="" alt="Cat photo" draggable="false">
+      <img class="layer-b hidden" id="imgB" src="" alt="Cat photo" draggable="false">
     </div>
+
+    <!-- Dots showing position in shuffled deck (max 11 dots) -->
+    <div class="progress" id="progressDots"></div>
+
+    <!-- Countdown ring for slideshow -->
+    <svg class="countdown-ring" id="countdownRing" viewBox="0 0 20 20">
+      <circle cx="10" cy="10" r="8" stroke-dasharray="50.27" stroke-dashoffset="0"/>
+    </svg>
 
   </div>
 
   <script>
-    const N = 140;
+    // ─────────────────────────────────────────────
+    // CONFIG
+    // ─────────────────────────────────────────────
+    const N = 140;           // last image number (0..N inclusive)
+    const SLIDESHOW_T = 10;  // seconds of inactivity before auto-advance
 
-    function pad(n) {
-      return String(n).padStart(4, '0');
+    // ─────────────────────────────────────────────
+    // HELPERS
+    // ─────────────────────────────────────────────
+    function pad(n) { return String(n).padStart(4, '0'); }
+
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
     }
 
-    function randomIndex(exclude) {
-      let idx;
-      do {
-        idx = Math.floor(Math.random() * (N + 1));
-      } while (idx === exclude && N > 0);
-      return idx;
+    function imgUrl(num) { return `image/${pad(num)}.jpg`; }
+
+    // ─────────────────────────────────────────────
+    // STATE
+    // ─────────────────────────────────────────────
+    let deck = [];       // shuffled array of image numbers
+    let pos  = 0;        // current index in deck
+    let transitioning = false;
+
+    // Layer management: two <img> tags, we cross-fade between them
+    const imgA = document.getElementById('imgA');
+    const imgB = document.getElementById('imgB');
+    let activeLayer = imgA;  // the currently visible one
+
+    function inactiveLayer() { return activeLayer === imgA ? imgB : imgA; }
+
+    // ─────────────────────────────────────────────
+    // BUILD DECK — verify images exist
+    // ─────────────────────────────────────────────
+    // We optimistically shuffle 0..N, then silently remove any 404s
+    // as we encounter them (onerror on preload probe).
+
+    function buildDeck() {
+      const raw = Array.from({ length: N + 1 }, (_, i) => i);
+      deck = shuffle(raw);
+      pos  = 0;
     }
 
-    let currentIndex = null;
-    let hintTimer = null;
+    // Remove a number from deck without changing current position
+    function removeFromDeck(num) {
+      const idx = deck.indexOf(num);
+      if (idx === -1) return;
+      deck.splice(idx, 1);
+      if (idx < pos) pos--;
+      // pos stays the same (now points to what was next)
+    }
 
+    // ─────────────────────────────────────────────
+    // PROGRESS DOTS
+    // ─────────────────────────────────────────────
+    const progressEl = document.getElementById('progressDots');
+    const MAX_DOTS = 11;
+
+    function updateDots() {
+      const total = deck.length;
+      if (total <= 1) { progressEl.innerHTML = ''; return; }
+
+      const show = Math.min(total, MAX_DOTS);
+      progressEl.innerHTML = '';
+
+      // Which logical dots to render
+      // Window: center on pos, clamped
+      let start = pos - Math.floor(show / 2);
+      start = Math.max(0, Math.min(start, total - show));
+      const end = start + show;
+
+      for (let i = start; i < end; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'progress-dot' + (i === pos ? ' active' : '');
+        progressEl.appendChild(dot);
+      }
+    }
+
+    // ─────────────────────────────────────────────
+    // BACK BUTTON
+    // ─────────────────────────────────────────────
+    const backBtn = document.getElementById('backBtn');
+
+    function updateBackBtn() {
+      backBtn.classList.toggle('visible', pos > 0);
+    }
+
+    backBtn.addEventListener('click', () => {
+      resetActivityTimer();
+      go(-1);
+    });
+
+    // ─────────────────────────────────────────────
+    // HINT
+    // ─────────────────────────────────────────────
     const hint = document.getElementById('hint');
+    let hintTimer = null;
+    let hintShown = false;
 
     function showHint() {
       hint.style.display = 'flex';
-      // re-trigger animation
       hint.classList.remove('appearing', 'hiding');
-      void hint.offsetWidth; // reflow
+      void hint.offsetWidth;
       hint.classList.add('appearing');
+      hintShown = true;
     }
 
     function hideHint(callback) {
+      if (!hintShown) { if (callback) callback(); return; }
       hint.classList.remove('appearing');
       hint.classList.add('hiding');
       hint.addEventListener('animationend', () => {
         hint.style.display = 'none';
+        hintShown = false;
         if (callback) callback();
       }, { once: true });
     }
 
-    function loadImage(idx) {
-      const img = document.getElementById('photo');
-      img.classList.add('fading');
-      setTimeout(() => {
-        img.src = `image/${pad(idx)}.jpg`;
-        const done = () => {
-          img.classList.remove('fading');
-          // Show hint again after image loaded, small delay for smoothness
-          clearTimeout(hintTimer);
-          hintTimer = setTimeout(showHint, 400);
-        };
-        img.onload = done;
-        img.onerror = done;
-      }, 250);
-      currentIndex = idx;
+    // ─────────────────────────────────────────────
+    // COUNTDOWN RING (slideshow indicator)
+    // ─────────────────────────────────────────────
+    const ring = document.getElementById('countdownRing');
+    const ringCircle = ring.querySelector('circle');
+
+    function startRing() {
+      ring.classList.remove('running');
+      void ringCircle.offsetWidth; // reflow to restart animation
+      ring.classList.add('visible', 'running');
     }
 
-    // Initial load
-    currentIndex = randomIndex(-1);
-    document.getElementById('photo').src = `image/${pad(currentIndex)}.jpg`;
+    function stopRing() {
+      ring.classList.remove('running', 'visible');
+    }
 
-    document.getElementById('wrapper').addEventListener('click', () => {
-      clearTimeout(hintTimer);
-      hideHint(() => {
-        loadImage(randomIndex(currentIndex));
+    // ─────────────────────────────────────────────
+    // PRELOAD
+    // ─────────────────────────────────────────────
+    let preloadImg = new Image();
+
+    function preloadNext() {
+      const nextPos = pos + 1;
+      if (nextPos >= deck.length) return;
+      preloadImg = new Image();
+      preloadImg.src = imgUrl(deck[nextPos]);
+    }
+
+    // ─────────────────────────────────────────────
+    // IMAGE TRANSITIONS
+    // ─────────────────────────────────────────────
+    function showImage(num, direction /* 'left'|'right' */, onDone) {
+      const next = inactiveLayer();
+      const curr = activeLayer;
+
+      // Place next layer hidden, off-screen
+      const inClass  = direction === 'left' ? 'slide-in-left'  : 'slide-in-right';
+      const outClass = direction === 'left' ? 'slide-out-left' : 'slide-out-right';
+
+      next.src = imgUrl(num);
+      next.className = `layer-${next === imgA ? 'a' : 'b'} ${inClass}`;
+      next.style.zIndex = 3;
+      curr.style.zIndex = 2;
+
+      const settle = () => {
+        // Force reflow so transition fires
+        void next.offsetWidth;
+        next.classList.remove(inClass);
+        next.classList.add('slide-settled');
+
+        curr.classList.add(outClass);
+
+        next.addEventListener('transitionend', function handler(e) {
+          if (e.propertyName !== 'opacity') return;
+          next.removeEventListener('transitionend', handler);
+          curr.className = `layer-${curr === imgA ? 'a' : 'b'} hidden`;
+          curr.style.zIndex = '';
+          next.style.zIndex = '';
+          next.className = `layer-${next === imgA ? 'a' : 'b'} slide-settled`;
+          // clean up extra classes
+          next.classList.remove('slide-settled');
+          activeLayer = next;
+          if (onDone) onDone();
+        });
+      };
+
+      if (next.complete && next.naturalWidth) {
+        settle();
+      } else {
+        next.onload  = settle;
+        next.onerror = () => {
+          // Image missing — remove from deck, skip
+          removeFromDeck(num);
+          updateDots();
+          updateBackBtn();
+          next.className = `layer-${next === imgA ? 'a' : 'b'} hidden`;
+          next.style.zIndex = '';
+          curr.style.zIndex = '';
+          if (onDone) onDone();
+          // automatically advance to the now-current pos
+          if (deck.length > 0) showCurrent(direction);
+        };
+      }
+    }
+
+    function showCurrent(direction) {
+      if (deck.length === 0) return;
+      transitioning = true;
+      const num = deck[pos];
+
+      showImage(num, direction, () => {
+        transitioning = false;
+        preloadNext();
+        updateDots();
+        updateBackBtn();
       });
+    }
+
+    // ─────────────────────────────────────────────
+    // NAVIGATION
+    // ─────────────────────────────────────────────
+    function go(delta) {
+      if (transitioning) return;
+      if (delta > 0) {
+        if (pos >= deck.length - 1) return; // at end
+        pos++;
+        showCurrent('left');
+      } else {
+        if (pos <= 0) return; // at start
+        pos--;
+        showCurrent('right');
+      }
+    }
+
+    // ─────────────────────────────────────────────
+    // SLIDESHOW TIMER
+    // ─────────────────────────────────────────────
+    let activityTimer = null;
+    let slideshowMode = false;
+
+    function resetActivityTimer() {
+      clearTimeout(activityTimer);
+      if (slideshowMode) { stopRing(); slideshowMode = false; }
+      activityTimer = setTimeout(enterSlideshowMode, SLIDESHOW_T * 1000);
+      startRing();
+    }
+
+    function enterSlideshowMode() {
+      slideshowMode = true;
+      autoAdvance();
+    }
+
+    function autoAdvance() {
+      if (!slideshowMode) return;
+      if (pos >= deck.length - 1) {
+        pos = 0;  // wrap around
+      } else {
+        pos++;
+      }
+      showCurrent('left');
+      // Wait for transition + timer
+      activityTimer = setTimeout(autoAdvance, SLIDESHOW_T * 1000);
+      stopRing();
+      startRing(); // restart ring for next cycle
+    }
+
+    // ─────────────────────────────────────────────
+    // ACTIVITY DETECTION
+    // ─────────────────────────────────────────────
+    const activityEvents = ['mousemove', 'mousedown', 'keydown', 'wheel', 'touchstart', 'touchmove'];
+    activityEvents.forEach(ev => {
+      window.addEventListener(ev, resetActivityTimer, { passive: true });
     });
+
+    // ─────────────────────────────────────────────
+    // CLICK / SWIPE
+    // ─────────────────────────────────────────────
+    const wrapper = document.getElementById('wrapper');
+
+    // Click → next
+    wrapper.addEventListener('click', () => {
+      if (transitioning) return;
+      resetActivityTimer();
+      hideHint(() => go(1));
+    });
+
+    // Touch swipe
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    wrapper.addEventListener('touchstart', e => {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    wrapper.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      const dy = e.changedTouches[0].clientY - touchStartY;
+      if (Math.abs(dx) < 30 || Math.abs(dy) > Math.abs(dx) * 0.8) return;
+      resetActivityTimer();
+      if (dx < 0) {
+        // swipe left → next
+        hideHint(() => go(1));
+      } else {
+        // swipe right → prev
+        hideHint(() => go(-1));
+      }
+    }, { passive: true });
+
+    // ─────────────────────────────────────────────
+    // KEYBOARD
+    // ─────────────────────────────────────────────
+    window.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { resetActivityTimer(); hideHint(() => go(1)); }
+      if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   { resetActivityTimer(); hideHint(() => go(-1)); }
+    });
+
+    // ─────────────────────────────────────────────
+    // INIT
+    // ─────────────────────────────────────────────
+    buildDeck();
+
+    // Load first image directly into active layer without transition
+    activeLayer.src = imgUrl(deck[0]);
+    activeLayer.onload = () => {
+      updateDots();
+      updateBackBtn();
+      preloadNext();
+      // Show hint on first load
+      clearTimeout(hintTimer);
+      hintTimer = setTimeout(showHint, 400);
+      // Start activity timer (and ring)
+      resetActivityTimer();
+    };
+    activeLayer.onerror = () => {
+      // First image missing — advance
+      removeFromDeck(deck[0]);
+      pos = 0;
+      if (deck.length > 0) {
+        activeLayer.src = imgUrl(deck[0]);
+      }
+    };
   </script>
 </body>
 </html>
