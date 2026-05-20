@@ -382,6 +382,8 @@
     const inCls  = direction === 'left' ? 'slide-in-left'  : 'slide-in-right';
     const outCls = direction === 'left' ? 'slide-out-left' : 'slide-out-right';
 
+    next.onload  = null;
+    next.onerror = null;
     next.src       = imgUrl(num);
     next.className = `layer-${next === imgA ? 'a' : 'b'} ${inCls}`;
     next.style.zIndex = 3;
@@ -487,6 +489,8 @@
   activeLayer.src = imgUrl(deck[0]);
 
   activeLayer.onload = () => {
+    activeLayer.onload  = null;
+    activeLayer.onerror = null;
     activeLayer.style.transition = 'opacity 0.5s ease';
     activeLayer.style.opacity    = '1';
     setTimeout(() => {
