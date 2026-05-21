@@ -136,7 +136,7 @@
       transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
     }
     .back-btn.visible {
-      opacity: 0.45;
+      opacity: 1;
       pointer-events: auto;
       transform: scale(1);
     }
@@ -144,18 +144,39 @@
     .back-btn:active { transform: scale(0.9) !important; }
     .back-btn svg    { display: block; }
 
-    /* ── Countdown ring ── */
-    .countdown-ring {
+    /* ── Next button (wraps countdown ring) ── */
+    .next-btn {
       position: absolute;
       right: 0;
       top: 0;
       width: 20px;
       height: 20px;
-      pointer-events: none;
+      padding: 0;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #888;
       opacity: 0;
+      pointer-events: none;
+      transform: scale(0.7);
+      transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .next-btn.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1);
+    }
+    .next-btn:hover  { opacity: 0.8 !important; }
+    .next-btn:active { transform: scale(0.9) !important; }
+    .next-btn svg    { display: block; }
+
+    /* ── Countdown ring ── */
+    .countdown-ring {
+      width: 20px;
+      height: 20px;
+      pointer-events: none;
       transition: opacity 0.4s ease;
     }
-    .countdown-ring.visible { opacity: 0.45; }
     .countdown-ring .track  { fill: none; stroke: #ddd; stroke-width: 1.5; }
     .countdown-ring .fill   {
       fill: none;
@@ -204,12 +225,14 @@
 
     <div class="progress" id="progressDots"></div>
 
-    <svg class="countdown-ring" id="countdownRing" viewBox="0 0 20 20">
-      <circle class="track" cx="10" cy="10" r="8"/>
-      <circle class="fill"  cx="10" cy="10" r="8"/>
-      <!-- Right arrow inside ring -->
-      <polyline class="arrow" points="9,6 13,10 9,14"/>
-    </svg>
+    <button class="next-btn" id="nextBtn" aria-label="Вперёд">
+      <svg class="countdown-ring" id="countdownRing" viewBox="0 0 20 20">
+        <circle class="track" cx="10" cy="10" r="8"/>
+        <circle class="fill"  cx="10" cy="10" r="8"/>
+        <!-- Right arrow inside ring -->
+        <polyline class="arrow" points="9,6 13,10 9,14"/>
+      </svg>
+    </button>
   </div>
 
 </div>
@@ -278,6 +301,12 @@
     hideHint(() => navigate(-1));
   });
 
+  const nextBtn = document.getElementById('nextBtn');
+  nextBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    hideHint(() => navigate(1));
+  });
+
   // ── Hint ──
   const hint    = document.getElementById('hint');
   let hintShown = false;
@@ -317,7 +346,7 @@
     if (ringRaf) cancelAnimationFrame(ringRaf);
     ringFill.style.strokeDashoffset = 0;
     ringStart = performance.now();
-    ringEl.classList.add('visible');
+    document.getElementById('nextBtn').classList.add('visible');
     ringRaf = requestAnimationFrame(ringTick);
   }
 
@@ -325,7 +354,7 @@
     if (ringRaf) { cancelAnimationFrame(ringRaf); ringRaf = null; }
     ringStart = null;
     ringFill.style.strokeDashoffset = 0;
-    ringEl.classList.remove('visible');
+    document.getElementById('nextBtn').classList.remove('visible');
   }
 
   // ── Slideshow timer ──
