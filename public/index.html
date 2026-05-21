@@ -166,7 +166,7 @@
       pointer-events: auto;
       transform: scale(1);
     }
-    .next-btn:hover  { opacity: 0.8 !important; }
+    .next-btn:hover  { opacity: 0.8 !important; color: #444; }
     .next-btn:active { transform: scale(0.9) !important; }
     .next-btn svg    { display: block; }
 
@@ -237,7 +237,7 @@
 
 </div>
 <script>
-  const N           = 140;
+  const N           = 169;
   const SLIDESHOW_T = 10;
 
   const pad    = n => String(n).padStart(4, '0');
@@ -278,14 +278,12 @@
   // ── Dots ──
   const progressEl = document.getElementById('progressDots');
   function updateDots() {
-    const total = deck.length;
-    if (total <= 1) { progressEl.innerHTML = ''; return; }
-    const show  = Math.min(total, 11);
-    const start = Math.max(0, Math.min(pos - Math.floor(show / 2), total - show));
+    const DOTS = 10;
     progressEl.innerHTML = '';
-    for (let i = start; i < start + show; i++) {
+    const activeDot = Math.min(Math.floor(pos / deck.length * DOTS), DOTS - 1);
+    for (let i = 0; i < DOTS; i++) {
       const d = document.createElement('div');
-      d.className = 'progress-dot' + (i === pos ? ' active' : '');
+      d.className = 'progress-dot' + (i === activeDot ? ' active' : '');
       progressEl.appendChild(d);
     }
   }
