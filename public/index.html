@@ -48,6 +48,7 @@
     }
     .image-wrapper img.layer-a { z-index: 1; }
     .image-wrapper img.layer-b { z-index: 2; }
+    .image-wrapper img.layer-c { z-index: 1; }
     .image-wrapper img.hidden  { opacity: 0; pointer-events: none; }
 
     .image-wrapper img.slide-out-left  { transform: translateX(-60px); opacity: 0; }
@@ -211,6 +212,7 @@
   <div class="image-wrapper" id="wrapper">
     <img class="layer-a" id="imgA" src="" alt="" draggable="false">
     <img class="layer-b hidden" id="imgB" src="" alt="" draggable="false">
+    <img class="layer-c hidden" id="imgC" src="" alt="" draggable="false">
   </div>
 
   <div class="bottom-row">
@@ -237,8 +239,8 @@
 
 </div>
 <script>
-  const N           = 169;
-  const SLIDESHOW_T = 10;
+  const N           = 179;
+  const SLIDESHOW_T = 60;
 
   const pad    = n => String(n).padStart(4, '0');
   const imgUrl = n => `image/${pad(n)}.jpg`;
@@ -257,8 +259,16 @@
 
   const imgA = document.getElementById('imgA');
   const imgB = document.getElementById('imgB');
+  const imgC = document.getElementById('imgC');
+  const layers = [imgA, imgB, imgC];
   let activeLayer = imgA;
-  const inactiveLayer = () => activeLayer === imgA ? imgB : imgA;
+  // Round-robin: returns the layer that is neither activeLayer nor the one being preloaded
+  // For 3-layer system: next is the layer after active in rotation
+  const layerName = l => l === imgA ? 'a' : l === imgB ? 'b' : 'c';
+  const inactiveLayer = () => {
+    const idx = layers.indexOf(activeLayer);
+    return layers[(idx + 1) % 3];
+  };
 
   function buildDeck() {
     deck = shuffle(Array.from({ length: N + 1 }, (_, i) => i));
@@ -412,17 +422,17 @@
     next.onload  = null;
     next.onerror = null;
     next.src       = imgUrl(num);
-    next.className = `layer-${next === imgA ? 'a' : 'b'} ${inCls}`;
+    next.className = `layer-${layerName(next)} ${inCls}`;
     next.style.zIndex = 3;
     curr.style.zIndex = 2;
 
     function onSettled() {
       if (onSettled.done) return;
       onSettled.done = true;
-      curr.className    = `layer-${curr === imgA ? 'a' : 'b'} hidden`;
+      curr.className    = `layer-${layerName(curr)} hidden`;
       curr.style.zIndex = '';
       next.style.zIndex = '';
-      next.className    = `layer-${next === imgA ? 'a' : 'b'}`;
+      next.className    = `layer-${layerName(next)}`;
       next.style.opacity   = '';
       next.style.transform = '';
       activeLayer = next;
@@ -459,7 +469,7 @@
       next.onload  = settle;
       next.onerror = () => {
         removeFromDeck(num);
-        next.className    = `layer-${next === imgA ? 'a' : 'b'} hidden`;
+        next.className    = `layer-${layerName(next)} hidden`;
         next.style.zIndex = '';
         curr.style.zIndex = '';
         if (deck.length > 0) showCurrent(direction);
@@ -483,9 +493,11 @@
   // ── Click / swipe ──
   const wrapper = document.getElementById('wrapper');
 
-  wrapper.addEventListener('click', () => {
+  wrapper.addEventListener('click', e => {
     if (suppressClick) { suppressClick = false; return; }
-    hideHint(() => navigate(1));
+    const rect = wrapper.getBoundingClientRect();
+    const isLeft = e.clientX < rect.left + rect.width / 2;
+    hideHint(() => navigate(isLeft ? -1 : 1));
   });
 
   let tx = 0, ty = 0, suppressClick = false;
