@@ -121,9 +121,6 @@
 
     /* ── Back button ── */
     .back-btn {
-      position: absolute;
-      left: 0;
-      top: 0;
       width: 20px;
       height: 20px;
       padding: 0;
@@ -135,6 +132,7 @@
       pointer-events: none;
       transform: scale(0.7);
       transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+      flex-shrink: 0;
     }
     .back-btn.visible {
       opacity: 0.45;
@@ -142,14 +140,11 @@
       transform: scale(1);
     }
     .back-btn:hover  { opacity: 0.8 !important; color: #444; }
-    .back-btn:active { transform: scale(0.9) !important; }
+    .back-btn.pressing { transform: scale(0.9) !important; }
     .back-btn svg    { display: block; }
 
     /* ── Next button (wraps countdown ring) ── */
     .next-btn {
-      position: absolute;
-      right: 0;
-      top: 0;
       width: 20px;
       height: 20px;
       padding: 0;
@@ -161,6 +156,7 @@
       pointer-events: none;
       transform: scale(0.7);
       transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+      flex-shrink: 0;
     }
     .next-btn.visible {
       opacity: 0.45;
@@ -168,7 +164,7 @@
       transform: scale(1);
     }
     .next-btn:hover  { opacity: 0.8 !important; color: #444; }
-    .next-btn:active { transform: scale(0.9) !important; }
+    .next-btn.pressing { transform: scale(0.9) !important; }
     .next-btn svg    { display: block; }
 
     /* ── Countdown ring ── */
@@ -239,7 +235,7 @@
 
 </div>
 <script>
-  const N           = 179;
+  const N           = 195;
   const SLIDESHOW_T = 60;
 
   const pad    = n => String(n).padStart(4, '0');
@@ -288,7 +284,7 @@
   // ── Dots ──
   const progressEl = document.getElementById('progressDots');
   function updateDots() {
-    const DOTS = 10;
+    const DOTS = 20;
     progressEl.innerHTML = '';
     const activeDot = Math.min(Math.floor(pos / deck.length * DOTS), DOTS - 1);
     for (let i = 0; i < DOTS; i++) {
@@ -302,9 +298,16 @@
   const backBtn = document.getElementById('backBtn');
   function updateBackBtn() {
     backBtn.classList.add('visible');
+    document.getElementById('nextBtn').classList.add('visible');
+  }
+
+  function pressBtn(btn) {
+    btn.classList.add('pressing');
+    setTimeout(() => btn.classList.remove('pressing'), 200);
   }
   backBtn.addEventListener('click', e => {
     e.stopPropagation();
+    pressBtn(backBtn);
     userInteraction();
     hideHint(() => navigate(-1));
   });
@@ -312,6 +315,7 @@
   const nextBtn = document.getElementById('nextBtn');
   nextBtn.addEventListener('click', e => {
     e.stopPropagation();
+    pressBtn(nextBtn);
     hideHint(() => navigate(1));
   });
 
@@ -354,7 +358,6 @@
     if (ringRaf) cancelAnimationFrame(ringRaf);
     ringFill.style.strokeDashoffset = 0;
     ringStart = performance.now();
-    document.getElementById('nextBtn').classList.add('visible');
     ringRaf = requestAnimationFrame(ringTick);
   }
 
@@ -362,7 +365,6 @@
     if (ringRaf) { cancelAnimationFrame(ringRaf); ringRaf = null; }
     ringStart = null;
     ringFill.style.strokeDashoffset = 0;
-    document.getElementById('nextBtn').classList.remove('visible');
   }
 
   // ── Slideshow timer ──
@@ -497,6 +499,7 @@
     if (suppressClick) { suppressClick = false; return; }
     const rect = wrapper.getBoundingClientRect();
     const isLeft = e.clientX < rect.left + rect.width / 2;
+    pressBtn(isLeft ? backBtn : nextBtn);
     hideHint(() => navigate(isLeft ? -1 : 1));
   });
 
@@ -511,8 +514,8 @@
     const dy = e.changedTouches[0].clientY - ty;
     if (Math.abs(dx) < 30 || Math.abs(dy) > Math.abs(dx) * 0.8) return;
     suppressClick = true;
-    if (dx < 0) hideHint(() => navigate(1));
-    else        hideHint(() => navigate(-1));
+    if (dx < 0) { pressBtn(nextBtn); hideHint(() => navigate(1)); }
+    else         { pressBtn(backBtn); hideHint(() => navigate(-1)); }
   }, { passive: true });
 
   window.addEventListener('keydown', e => {
