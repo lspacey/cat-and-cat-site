@@ -235,7 +235,7 @@
 
 </div>
 <script>
-  const N           = 195;
+  let N = 206; // will be overridden by config.json
   const SLIDESHOW_T = 60;
 
   const pad    = n => String(n).padStart(4, '0');
@@ -524,9 +524,10 @@
   });
 
   // ── Init ──
-  buildDeck();
-  activeLayer.style.opacity = '0';
-  activeLayer.src = imgUrl(deck[0]);
+  function init() {
+    buildDeck();
+    activeLayer.style.opacity = '0';
+    activeLayer.src = imgUrl(deck[0]);
 
   activeLayer.onload = () => {
     activeLayer.onload  = null;
@@ -551,6 +552,17 @@
       activeLayer.src = imgUrl(deck[0]);
     }
   };
+  } // end init()
+
+  // Load config.json, validate N, then start
+  fetch('config.json')
+    .then(r => r.json())
+    .then(cfg => {
+      const parsed = parseInt(cfg.N, 10);
+      N = (Number.isFinite(parsed) && parsed > 0) ? parsed : 206;
+    })
+    .catch(() => { N = 206; })
+    .finally(() => init());
 </script>
 </body>
 </html>
