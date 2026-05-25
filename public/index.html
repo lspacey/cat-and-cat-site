@@ -562,7 +562,10 @@
       N = (Number.isFinite(parsed) && parsed > 0) ? parsed : 206;
     })
     .catch(() => { N = 206; })
-    .finally(() => init());
+    .finally(() => {
+      document.title += ' - ' + (N + 1);
+      init();
+    });
 </script>
 </body>
 </html>
