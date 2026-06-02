@@ -192,6 +192,26 @@
       stroke-linejoin: round;
       fill: none;
     }
+
+    /* ── Loading spinner ── */
+    .spinner {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      z-index: 10;
+    }
+    .spinner.visible { opacity: 1; }
+    .spinner svg {
+      width: 48px;
+      height: 48px;
+      animation: spin 0.9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -209,6 +229,12 @@
     <img class="layer-a" id="imgA" src="" alt="" draggable="false">
     <img class="layer-b hidden" id="imgB" src="" alt="" draggable="false">
     <img class="layer-c hidden" id="imgC" src="" alt="" draggable="false">
+    <div class="spinner" id="spinner">
+      <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="22" cy="22" r="18" stroke="rgba(255,255,255,0.25)" stroke-width="3"/>
+        <path d="M22 4 A18 18 0 0 1 40 22" stroke="rgba(255,255,255,0.75)" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+    </div>
   </div>
 
   <div class="bottom-row">
@@ -252,6 +278,7 @@
   // ── State ──
   let deck = [];
   let pos  = 0;
+  let busy = false; // true while loading/transitioning
 
   const imgA = document.getElementById('imgA');
   const imgB = document.getElementById('imgB');
@@ -295,6 +322,18 @@
   }
 
   // ── Back button ──
+  const spinnerEl = document.getElementById('spinner');
+  let loadingTimer = null; // delay before showing spinner (avoid flash on fast loads)
+
+  function showSpinner() {
+    clearTimeout(loadingTimer);
+    loadingTimer = setTimeout(() => spinnerEl.classList.add('visible'), 150);
+  }
+  function hideSpinner() {
+    clearTimeout(loadingTimer);
+    spinnerEl.classList.remove('visible');
+  }
+
   const backBtn = document.getElementById('backBtn');
   function updateBackBtn() {
     backBtn.classList.add('visible');
@@ -413,6 +452,7 @@
   // ── Transition ──
   function showCurrent(direction) {
     if (!deck.length) return;
+    busy = true;
 
     const num  = deck[pos];
     const next = inactiveLayer();
@@ -431,6 +471,8 @@
     function onSettled() {
       if (onSettled.done) return;
       onSettled.done = true;
+      busy = false;
+      hideSpinner();
       curr.className    = `layer-${layerName(curr)} hidden`;
       curr.style.zIndex = '';
       next.style.zIndex = '';
@@ -468,8 +510,11 @@
     if (next.complete && next.naturalWidth) {
       settle();
     } else {
-      next.onload  = settle;
+      showSpinner();
+      next.onload  = () => { hideSpinner(); settle(); };
       next.onerror = () => {
+        busy = false;
+        hideSpinner();
         removeFromDeck(num);
         next.className    = `layer-${layerName(next)} hidden`;
         next.style.zIndex = '';
@@ -482,6 +527,7 @@
 
   // ── Navigate ──
   function navigate(delta) {
+    if (busy) return; // ignore clicks during load/transition
     if (delta > 0) {
       pos = pos >= deck.length - 1 ? 0 : pos + 1;
     } else {
