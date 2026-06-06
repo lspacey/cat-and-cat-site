@@ -212,7 +212,46 @@
       animation: spin 0.9s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-  </style>
+  
+body {
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+body.day {
+  background-color: #ffffff;
+  color: #333333;
+}
+
+body.night {
+  background-color: #111111;
+  color: #f2f2f2;
+}
+
+body.night .hint-label,
+body.night .back-btn,
+body.night .next-btn,
+body.night .progress-dot {
+  color: #e5e5e5;
+}
+
+body.night .progress-dot {
+  background: #666;
+}
+
+body.night .progress-dot.active {
+  background: #f0f0f0;
+}
+
+body.night .countdown-ring .track {
+  stroke: rgba(255,255,255,0.18);
+}
+
+body.night .countdown-ring .fill,
+body.night .countdown-ring .arrow {
+  stroke: #f0f0f0;
+}
+
+</style>
 </head>
 <body>
 <div class="scene" id="scene">
@@ -280,7 +319,25 @@
   let pos  = 0;
   let busy = false; // true while loading/transitioning
 
-  const imgA = document.getElementById('imgA');
+  
+const scene = document.getElementById('scene');
+
+function applyTheme(theme) {
+  document.body.classList.toggle('night', theme === 'night');
+  document.body.classList.toggle('day', theme !== 'night');
+  localStorage.setItem('theme', theme);
+}
+
+function toggleTheme() {
+  const isNight = document.body.classList.contains('night');
+  applyTheme(isNight ? 'day' : 'night');
+}
+
+const savedTheme = localStorage.getItem('theme') || 'day';
+applyTheme(savedTheme);
+if (!document.body.classList.contains('day') && !document.body.classList.contains('night')) applyTheme('day');
+
+const imgA = document.getElementById('imgA');
   const imgB = document.getElementById('imgB');
   const imgC = document.getElementById('imgC');
   const layers = [imgA, imgB, imgC];
@@ -564,7 +621,17 @@
     else         { pressBtn(backBtn); hideHint(() => navigate(-1)); }
   }, { passive: true });
 
-  window.addEventListener('keydown', e => {
+  document.addEventListener('click', (e) => {
+  if (e.target.closest('.back-btn, .next-btn, .image-wrapper')) return;
+  toggleTheme();
+}, true);
+
+scene.addEventListener('click', (e) => {
+  if (e.target.closest('.back-btn, .next-btn, .image-wrapper')) return;
+  toggleTheme();
+}, true);
+
+window.addEventListener('keydown', e => {
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') hideHint(() => navigate(1));
     if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   hideHint(() => navigate(-1));
   });
