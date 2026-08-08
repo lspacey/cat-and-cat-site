@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tiles Fun — Photo Mosaic</title>
+<style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+                     Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: #000;
+        color: #eee;
+        min-height: 100vh;
+    }
+
+    /* ---- Error banner ---- */
+    #error-banner {
+        display: none;
+        max-width: 720px;
+        margin: 16px auto;
+        padding: 16px 20px;
+        background: #4a1c1c;
+        border: 1px solid #c44;
+        border-radius: 8px;
+        color: #fcc;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        text-align: center;
+    }
+
+    /* ---- Mosaic container ---- */
+    #mosaic {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;   /* centers each row horizontally */
+        align-items: center;       /* centers images vertically within their row */
+        gap: 5px;                  /* margin between images, both directions */
+        width: 90vw;               /* matches the existing 90%-of-viewport requirement */
+        margin: 0 auto;            /* centers the whole mosaic container on the page */
+    }
+    #mosaic img {
+        display: block;
+        align-self: center;        /* belt-and-suspenders: center within the flex row */
+    }
+
+    /* ---- Lightbox ---- */
+    #lightbox {
+        display: none;                     /* hidden by default */
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: rgba(0,0,0,0.85);
+        flex-direction: column;
+        align-items: center;
+        /* flex child (.lb-image-wrap) has flex:1 to fill remaining space */
+    }
+
+    /* Top bar */
+    .lb-top {
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 16px;
+        z-index: 2;
+        pointer-events: none;
+    }
+    .lb-top > * { pointer-events: auto; }
+
+    .lb-btn {
+        background: rgba(255,255,255,0.12);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.25);
+        border-radius: 6px;
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        user-select: none;
+        -webkit-user-select: none;
+        transition: background 0.15s;
+        line-height: 1;
+    }
+    .lb-btn:hover  { background: rgba(255,255,255,0.22); }
+    .lb-btn:active { background: rgba(255,255,255,0.30); }
+
+    .lb-close {
+        font-size: 1.5rem;
+        padding: 4px 12px 6px;
+        line-height: 1;
+    }
+
+    .lb-count {
+        font-size: 0.85rem;
+        color: rgba(255,255,255,0.7);
+        user-select: none;
+        margin: 0 8px;
+    }
+
+    /* Image area */
+    .lb-image-wrap {
+        flex: 1;
+        min-height: 0;                     /* allow shrinking below content size */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 60px 16px 20px;
+        overflow: hidden;                  /* clip image overflow */
+        position: relative;                /* anchor for the spinner */
+    }
+    #lb-img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        cursor: pointer;
+        border-radius: 2px;
+        transition: opacity 0.2s;
+    }
+
+    /* Loading spinner */
+    .lb-spinner {
+        display: none;
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba(255,255,255,0.18);
+        border-top-color: rgba(255,255,255,0.85);
+        border-radius: 50%;
+        animation: lb-spin 0.7s linear infinite;
+        pointer-events: none;
+        z-index: 1;
+        /* centered by its flex parent (.lb-image-wrap) when #lb-img is hidden */
+    }
+    @keyframes lb-spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Arrows */
+    .lb-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255,255,255,0.10);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.20);
+        border-radius: 6px;
+        font-size: 2rem;
+        width: 48px;
+        height: 64px;
+        cursor: pointer;
+        user-select: none;
+        -webkit-user-select: none;
+        transition: background 0.15s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2;
+    }
+    .lb-arrow:hover  { background: rgba(255,255,255,0.20); }
+    .lb-arrow:active { background: rgba(255,255,255,0.28); }
+    .lb-prev { left:  8px; }
+    .lb-next { right: 8px; }
+
+    /* Mobile tweaks */
+    @media (max-width: 600px) {
+        .lb-arrow { width: 36px; height: 48px; font-size: 1.5rem; }
+        .lb-btn   { padding: 6px 12px; font-size: 0.82rem; }
+    }
+</style>
+</head>
+<body>
+
+<div id="error-banner"></div>
+<div id="mosaic"></div>
+
+<!-- LIGHTBOX -->
+<div id="lightbox">
+    <div class="lb-top">
+        <button id="lb-download" class="lb-btn" title="Download">&#x2B07; Download</button>
+        <span class="lb-count" id="lb-count"></span>
+        <button id="lb-close" class="lb-btn lb-close" title="Close">&times;</button>
+    </div>
+    <button id="lb-prev" class="lb-arrow lb-prev" title="Previous">&#x2039;</button>
+    <div class="lb-image-wrap">
+        <div id="lb-spinner" class="lb-spinner"></div>
+        <img id="lb-img" src="" alt="">
+    </div>
+    <button id="lb-next" class="lb-arrow lb-next" title="Next">&#x203A;</button>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
