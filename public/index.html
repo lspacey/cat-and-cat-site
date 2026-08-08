@@ -89,6 +89,75 @@
       white-space: nowrap;
     }
 
+    /* ── Hamburger menu ── */
+    .menu-btn {
+      position: fixed;
+      top: 12px;
+      left: 16px;
+      width: 32px;
+      height: 32px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 4px;
+      opacity: 0.45;
+      transition: opacity 0.25s ease;
+    }
+    .menu-btn:hover { opacity: 0.8; }
+    .menu-btn span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: #555;
+      border-radius: 2px;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .menu-dropdown {
+      position: fixed;
+      top: 48px;
+      left: 12px;
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+      padding: 6px 0;
+      z-index: 25;
+      min-width: 130px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-8px) scale(0.92);
+      transition: opacity 0.25s cubic-bezier(0.34,1.56,0.64,1),
+                  transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .menu-dropdown.open {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0) scale(1);
+    }
+    .menu-dropdown a {
+      display: block;
+      padding: 8px 20px;
+      font-family: 'Georgia', serif;
+      font-size: 15px;
+      font-style: italic;
+      color: #555;
+      letter-spacing: 0.03em;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .menu-dropdown a:hover {
+      background: #f5f5f5;
+      color: #333;
+    }
+
     /* ── Bottom row ── */
     .bottom-row {
       position: absolute;
@@ -230,7 +299,8 @@ body.night {
 body.night .hint-label,
 body.night .back-btn,
 body.night .next-btn,
-body.night .progress-dot {
+body.night .progress-dot,
+body.night .menu-btn {
   color: #e5e5e5;
 }
 
@@ -251,9 +321,33 @@ body.night .countdown-ring .arrow {
   stroke: #f0f0f0;
 }
 
+body.night .menu-btn span {
+  background: #e5e5e5;
+}
+body.night .menu-dropdown {
+  background: #222;
+  border-color: #444;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+body.night .menu-dropdown a {
+  color: #ccc;
+}
+body.night .menu-dropdown a:hover {
+  background: #333;
+  color: #f2f2f2;
+}
+
 </style>
 </head>
 <body>
+  <button class="menu-btn" id="menuBtn" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="menu-dropdown" id="menuDropdown">
+    <a href="memes/">memes</a>
+    <a href="local/snapshots/index.html">feeding</a>
+  </div>
+
 <div class="scene" id="scene">
 
   <div class="hint" id="hint">
@@ -622,18 +716,34 @@ const imgA = document.getElementById('imgA');
   }, { passive: true });
 
   document.addEventListener('click', (e) => {
-  if (e.target.closest('.back-btn, .next-btn, .image-wrapper')) return;
+  if (e.target.closest('.back-btn, .next-btn, .image-wrapper, .menu-btn, .menu-dropdown')) return;
   toggleTheme();
 }, true);
 
 scene.addEventListener('click', (e) => {
-  if (e.target.closest('.back-btn, .next-btn, .image-wrapper')) return;
+  if (e.target.closest('.back-btn, .next-btn, .image-wrapper, .menu-btn, .menu-dropdown')) return;
   toggleTheme();
 }, true);
 
 window.addEventListener('keydown', e => {
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') hideHint(() => navigate(1));
     if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   hideHint(() => navigate(-1));
+  });
+
+  // ── Menu toggle ──
+  const menuBtn    = document.getElementById('menuBtn');
+  const menuDropdown = document.getElementById('menuDropdown');
+
+  menuBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    menuDropdown.classList.toggle('open');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!menuDropdown.classList.contains('open')) return;
+    if (!e.target.closest('.menu-btn') && !e.target.closest('.menu-dropdown')) {
+      menuDropdown.classList.remove('open');
+    }
   });
 
   // ── Init ──
