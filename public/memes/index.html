@@ -15,6 +15,19 @@
         min-height: 100vh;
     }
 
+    /* ---- Home link ---- */
+    #home-link {
+        position: fixed;
+        top: 12px;
+        left: 16px;
+        z-index: 100;
+        font-size: 1.4rem;
+        text-decoration: none;
+        opacity: 0.5;
+        transition: opacity 0.15s;
+    }
+    #home-link:hover { opacity: 0.9; }
+
     /* ---- Error banner ---- */
     #error-banner {
         display: none;
@@ -172,6 +185,8 @@
 </style>
 </head>
 <body>
+
+<a href="/" id="home-link" title="Home">&#x1F3E0;</a>
 
 <div id="error-banner"></div>
 <div id="mosaic"></div>

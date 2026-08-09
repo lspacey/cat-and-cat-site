@@ -238,6 +238,7 @@ async function loadImages() {
             showError('images.json contains no entries.');
             return;
         }
+        document.title = `Tiles Fun — Photo Mosaic - ${allEntries.length}`;
         seededShuffle(hourlySeed(), allEntries);
         buildLayoutAndRender();
     } catch (err) {
