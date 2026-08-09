@@ -346,6 +346,7 @@ body.night .menu-dropdown a:hover {
   <div class="menu-dropdown" id="menuDropdown">
     <a href="memes/">memes</a>
     <a href="https://feed.2cats.club/local/snapshots/index.html">feeding</a>
+    <a href="#" id="themeLink">theme</a>
   </div>
 
 <div class="scene" id="scene">
@@ -715,15 +716,7 @@ const imgA = document.getElementById('imgA');
     else         { pressBtn(backBtn); hideHint(() => navigate(-1)); }
   }, { passive: true });
 
-  document.addEventListener('click', (e) => {
-  if (e.target.closest('.back-btn, .next-btn, .image-wrapper, .menu-btn, .menu-dropdown')) return;
-  toggleTheme();
-}, true);
-
-scene.addEventListener('click', (e) => {
-  if (e.target.closest('.back-btn, .next-btn, .image-wrapper, .menu-btn, .menu-dropdown')) return;
-  toggleTheme();
-}, true);
+  // Theme toggle is now only via the menu item (see #themeLink below)
 
 window.addEventListener('keydown', e => {
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') hideHint(() => navigate(1));
@@ -744,6 +737,13 @@ window.addEventListener('keydown', e => {
     if (!e.target.closest('.menu-btn') && !e.target.closest('.menu-dropdown')) {
       menuDropdown.classList.remove('open');
     }
+  });
+
+  // ── Theme toggle via menu ──
+  document.getElementById('themeLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    toggleTheme();
+    menuDropdown.classList.remove('open');
   });
 
   // ── Init ──
