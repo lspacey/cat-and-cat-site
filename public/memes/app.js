@@ -3,7 +3,7 @@
    Pure vanilla JS — no frameworks, no build tools, no external CDN dependencies.
    ========================================================================== */
 
-const APP_JS_VERSION = 'v16-flexbox-wrap';
+const APP_JS_VERSION = 'v17-lazy-load';
 console.log(
     `%c[Tiles Fun] app.js VERSION: ${APP_JS_VERSION}`,
     'color: #0f0; background: #000; font-size: 14px; font-weight: bold; padding: 4px;'
@@ -13,6 +13,10 @@ console.log(
 // Constants — tweak these at the top
 // ---------------------------------------------------------------------------
 const SWIPE_THRESHOLD      = 50;        // min px delta for a swipe to count
+const OBSERVER_ROOT_MARGIN = '300px';   // load images 300px before they enter viewport
+
+// 1×1 transparent PNG data URI — used as initial placeholder & when unloading
+const EMPTY_PLACEHOLDER = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
 
 // ---------------------------------------------------------------------------
 // Shared state
@@ -22,6 +26,7 @@ let layout      = [];         // lightbox navigation order = flat entry array
 let currentIdx  = -1;         // index of the image currently open in the lightbox
 let touchStartX = 0;          // for swipe detection
 let preloaded   = new Set();  // URLs already preloaded (lightbox)
+let observer    = null;       // IntersectionObserver instance
 
 // ---------------------------------------------------------------------------
 // DOM references (cached after DOMContentLoaded)
@@ -72,10 +77,13 @@ function hourlySeed() {
 function normaliseEntries(raw) {
     const entries = [];
     for (const [filename, info] of Object.entries(raw)) {
+        const dims = info.thumb_dimensions || [200, 200]; // fallback square
         entries.push({
             filename,
             thumb: `thumbs/${info.subdir}/${filename}`,
             full:  `pics/${info.subdir}/${filename}`,
+            w: dims[0],
+            h: dims[1],
         });
     }
     return entries;
@@ -101,21 +109,96 @@ function buildLayoutAndRender() {
 
 // ---------------------------------------------------------------------------
 // Render mosaic tiles into the DOM using CSS Flexbox wrap
+// Each tile is pre-sized with known thumb dimensions so layout remains stable.
+// Images are lazy-loaded via IntersectionObserver and unloaded when off-screen.
 // ---------------------------------------------------------------------------
 function renderMosaic(entries) {
     if (!$mosaic) return;
+
+    // Destroy previous observer
+    if (observer) {
+        observer.disconnect();
+        observer = null;
+    }
+
     $mosaic.innerHTML = '';
+
     entries.forEach((entry, i) => {
         const img = document.createElement('img');
-        img.src = entry.thumb;
+
+        // Pre-size the tile — layout stays fixed regardless of src state
+        img.width  = entry.w;
+        img.height = entry.h;
+        img.style.width  = entry.w + 'px';
+        img.style.height = entry.h + 'px';
+        img.style.flexShrink = '0';
+
+        // Start with transparent placeholder
+        img.src = EMPTY_PLACEHOLDER;
         img.alt = entry.filename;
-        img.loading = 'lazy';
-        img.decoding = 'async';
         img.draggable = false;
         img.style.cursor = 'pointer';
+        img.style.opacity = '0';
+        img.style.transition = 'opacity 0.35s ease';
+
+        // Store the real thumb URL as a data attribute for lazy loading
+        img.dataset.thumb = entry.thumb;
+        img.dataset.index = i;
+        img.dataset.loaded = '0';
+
         img.addEventListener('click', () => openLightbox(i));
         $mosaic.appendChild(img);
     });
+
+    // Set up IntersectionObserver for lazy loading / unloading
+    setupLazyLoader();
+}
+
+// ---------------------------------------------------------------------------
+// IntersectionObserver — load thumbs when near viewport, unload when far away
+// ---------------------------------------------------------------------------
+function setupLazyLoader() {
+    if (!$mosaic) return;
+
+    observer = new IntersectionObserver((observed) => {
+        observed.forEach((entry) => {
+            const img = entry.target;
+
+            if (entry.isIntersecting) {
+                // Image is near or in the viewport — load real thumb if not already
+                if (img.dataset.loaded !== '1') {
+                    img.src = img.dataset.thumb;
+                    img.onload = () => {
+                        img.style.opacity = '1';   // fade in
+                        img.dataset.loaded = '1';
+                        img.onload = null;
+                    };
+                    img.onerror = () => {
+                        img.style.opacity = '0.3';  // dim on error
+                        img.dataset.loaded = '1';
+                        img.onerror = null;
+                    };
+                }
+            } else {
+                // Image is fully off-screen — unload to free memory, keep placeholder
+                if (img.dataset.loaded !== '0') {
+                    img.src = EMPTY_PLACEHOLDER;
+                    img.style.opacity = '0';
+                    img.dataset.loaded = '0';
+                    img.onload = null;
+                    img.onerror = null;
+                }
+            }
+        });
+    }, {
+        root: null,                       // viewport
+        rootMargin: OBSERVER_ROOT_MARGIN, // preload 300px before entering
+        threshold: 0,                     // trigger as soon as any pixel is visible
+    });
+
+    // Observe every mosaic image
+    const imgs = $mosaic.querySelectorAll('img');
+    imgs.forEach((img) => observer.observe(img));
 }
 
 // ---------------------------------------------------------------------------
