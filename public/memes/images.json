@@ -21331,5 +21331,57 @@
     ],
     "original_bytes": 60573,
     "subdir": 8
+  },
+  "fake_animal_trainer_circus_exposed.jpg": {
+    "original_filename": "photo_2026-08-12_09-16-53.jpg",
+    "original_dimensions": [
+      1272,
+      1241
+    ],
+    "thumb_dimensions": [
+      200,
+      195
+    ],
+    "original_bytes": 139230,
+    "subdir": 0
+  },
+  "bed_roses_pattern_pillows.jpg": {
+    "original_filename": "photo_2026-08-13_20-06-43.jpg",
+    "original_dimensions": [
+      450,
+      444
+    ],
+    "thumb_dimensions": [
+      200,
+      197
+    ],
+    "original_bytes": 31513,
+    "subdir": 5
+  },
+  "bearded_man_soda_box.jpg": {
+    "original_filename": "photo_2026-08-13_20-36-18.jpg",
+    "original_dimensions": [
+      640,
+      624
+    ],
+    "thumb_dimensions": [
+      200,
+      195
+    ],
+    "original_bytes": 61143,
+    "subdir": 9
+  },
+  "black_cat_yellow_eyes_geologist.jpg": {
+    "original_filename": "photo_2026-08-15_10-54-38.jpg",
+    "original_dimensions": [
+      748,
+      965
+    ],
+    "thumb_dimensions": [
+      155,
+      200
+    ],
+    "original_bytes": 69605,
+    "subdir": 5
   }
 }
