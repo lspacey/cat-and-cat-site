@@ -21591,5 +21591,18 @@
     ],
     "original_bytes": 71667,
     "subdir": 0
+  },
+  "man_mustache_blue_shirt_table.jpg": {
+    "original_filename": "photo_2026-08-19_22-07-52.jpg",
+    "original_dimensions": [
+      2048,
+      2020
+    ],
+    "thumb_dimensions": [
+      200,
+      197
+    ],
+    "original_bytes": 324392,
+    "subdir": 2
   }
 }
